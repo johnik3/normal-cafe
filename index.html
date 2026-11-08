@@ -7,16 +7,29 @@
 <meta name="theme-color" content="#1a120e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232a1d16'/%3E%3Cpath d='M16 24h28v14a12 12 0 0 1-12 12h-4a12 12 0 0 1-12-12z' fill='%23f6f1e7'/%3E%3Cpath d='M44 28h4a6 6 0 0 1 0 12h-4' stroke='%23f6f1e7' stroke-width='4' fill='none'/%3E%3Cellipse cx='30' cy='25' rx='13' ry='3.5' fill='%236b3815'/%3E%3C/svg%3E">
-<title>正常营业咖啡店 · v3.0</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&display=swap">
+<title>正常营业咖啡店</title>
+<meta name="description" content="一家清晨五点半开门的街角咖啡店。做咖啡、交房租，50 天后房东奶奶要来收一大笔钱——店里还会来一些不太寻常的客人。">
+<meta property="og:title" content="正常营业咖啡店">
+<meta property="og:description" content="一家清晨五点半开门的街角咖啡店。做咖啡、交房租，还会来一些不太寻常的客人。">
+<meta property="og:image" content="https://johnik3.github.io/normal-cafe/docs/screenshots/02-morning-rush.jpg">
+<meta property="og:type" content="website">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="正常营业">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&display=swap" media="print" onload="this.media='all'">
 <style>
 html,body{margin:0;height:100%;background:#1a120e;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 canvas{display:block;touch-action:none}
 #safe{position:fixed;left:0;top:0;width:0;height:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);visibility:hidden;pointer-events:none}
 #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#f4e6d0;font:800 16px -apple-system,"PingFang SC",sans-serif;background:#1a120e;z-index:20}
 .fb{position:fixed;left:6px;z-index:10;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(30,20,15,.35);color:#f4e6d0;font:800 10px -apple-system,sans-serif;opacity:.7;padding:0}
-#devBtn{top:31%}#setBtn{top:calc(31% + 42px);font-size:16px}
+#devBtn{top:31%;display:none}body.dev #devBtn{display:block}
+#setBtn{position:fixed;z-index:12;left:auto;right:calc(10px + env(safe-area-inset-right));top:calc(8px + env(safe-area-inset-top));width:38px;height:38px;border-radius:50%;border:0;background:rgba(245,234,214,.94);box-shadow:0 2px 8px rgba(60,35,18,.32);padding:0;display:flex;align-items:center;justify-content:center;opacity:1}
+#setBtn.hide{display:none}#setBtn svg{display:block}
+#veil{position:fixed;inset:0;z-index:10;background:rgba(24,14,8,.5);display:none}#veil.show{display:block}
+#pauseTag{font:700 12px -apple-system,"PingFang SC",sans-serif;color:#8a6a50;margin:-2px 0 10px;display:none}#pauseTag.show{display:block}
 .pn{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:11;width:min(88vw,330px);max-height:86vh;overflow:auto;background:#f5ead6;border-radius:18px;padding:16px;box-sizing:border-box;box-shadow:0 10px 40px rgba(0,0,0,.5);display:none;font-family:-apple-system,"PingFang SC",sans-serif;color:#3b2416}
 .pn.show{display:block}.pn h3{margin:0 0 6px;font-size:16px}
 #devInfo{font-size:12px;color:#6b4a35;margin-bottom:8px;line-height:1.5}
@@ -31,10 +44,11 @@ canvas{display:block;touch-action:none}
 <div id="safe"></div><div id="loading">正在开门……</div>
 <canvas id="c"></canvas>
 <button id="devBtn" class="fb" aria-label="开发者面板">DEV</button>
-<button id="setBtn" class="fb" aria-label="设置">⚙</button>
-<div id="setPanel" class="pn" role="dialog" aria-label="设置"><h3>设置</h3>
+<button id="setBtn" aria-label="菜单（暂停）"><svg width="18" height="14" viewBox="0 0 18 14" aria-hidden="true"><path d="M1 1.5h16M1 7h16M1 12.5h16" stroke="#5a4334" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg></button>
+<div id="veil"></div>
+<div id="setPanel" class="pn" role="dialog" aria-label="菜单"><h3>菜单</h3><div id="pauseTag">已暂停 · 关掉菜单就继续营业</div>
 <div class="g"><button data-s="music" id="sMusic">音乐</button><button data-s="sfx" id="sSfx">音效</button><button data-s="vib" id="sVib">震动</button><button data-s="qual" id="sQual">画质</button>
-<button data-s="album" class="p">杯子图鉴 · 每周合影</button><button data-s="reset" id="sReset" class="w">重新开始</button><button class="c" data-s="close">关闭</button></div></div>
+<button data-s="album" class="p">杯子图鉴 · 每周合影</button><button data-s="reset" id="sReset" class="w">重新开始</button><button class="c" data-s="close">继续</button></div><div style="text-align:center;font:600 11px -apple-system,sans-serif;color:#b09a82;margin-top:6px">正常营业咖啡店 · v3.1</div></div>
 <div id="devPanel" class="pn" role="dialog" aria-label="开发者面板"><h3>开发者</h3><div id="devInfo"></div>
 <div class="g"><button class="p" data-a="skip">跳过今天 / 下一步</button><button data-a="week">跳到下一周</button><button data-a="story">下一位店员入职</button></div>
 <div class="sec">跳到节点（会改存档）</div>
@@ -242,7 +256,7 @@ function drawPolaroid(p,cx,cy,pw,rot,dev){if(!p)return;const ih=pw*0.82,b=pw*0.0
  text(`第 ${p.w} 周`+(p.ok?'':' · 欠一点'),0,th/2-cap*0.48,Math.max(10,pw*0.11),'#5a4334','center','700');ctx.restore();}
 
 /* =====================================================================
-   正常营业咖啡店 v3.0 —— 核心
+   正常营业咖啡店 v3.1 —— 核心
    加内容主要改：DATA（饮品、客人、商店、杯子）、DAYS（每天）、STAFF（店员）
    ===================================================================== */
 function layout(){const sT=SAFE.t,sB=SAFE.b;L.top=Math.max(12,sT+8);L.shopTop=L.top+34;L.counterY=H*0.4;L.workTop=L.counterY+H*0.03;L.custX=[W*0.19,W*0.5,W*0.81];L.cs=Math.min(W*0.085,H*0.05);
@@ -307,7 +321,7 @@ const DATA={
   {id:'awning',name:'新遮阳棚',desc:()=>'门口换上墨绿条纹遮阳棚',price:4500,from:24,tab:'front'},
   {id:'neon',name:'霓虹招牌',desc:()=>'招牌换成会发光的霓虹灯，窗上多一块 OPEN 灯牌',price:8000,from:28,tab:'front'}
  ],
- // 摆件：小龙入职后开放。摆上一件，就会引来一位怪客人（同一时间只来一位，按摆的顺序）
+ // 摆件：第 14 天起开放，纯装饰，每件每杯小费 +1
  lures:[
   {id:'chime',k:'cloud',name:'铜风铃',desc:'挂在窗边，风一吹就叮叮响。每杯小费 +1',price:160},
   {id:'globe',k:'snow',name:'雪景水晶球',desc:'摆在窗台，摇一摇会下雪。每杯小费 +1',price:150,req:()=>P('ice'),lock:'先买制冰机'},
@@ -325,13 +339,13 @@ const DATA={
 };
 const ING=DATA.ing,TYPES=DATA.customers;
 // 店员：来满次数后的第二天早上开门有入职剧情；st = 接管哪个站
-// 店员：小龙固定第 7 天起来访；其余四位由“摆件”引来，按摆的顺序，同一时间只来一位
+// 店员按固定日子来访（visits），来满次数后的第二天入职；sign = 第一次来访后、以及入职那天早上门牌的样子
 const STAFF={
  dragon:{name:'小龙',visits:[7,9,11,13],n:4,at:350,sign:'burnt',st:'奶站',job:'小龙管奶站：杯子划过去，牛奶直接好'},
  snow:{name:'雪人',visits:[16,18,20],n:3,at:470,sign:'frozen',st:'冰站',job:'雪人管冰站：玻璃杯划过去，冰直接接好'},
  cloud:{name:'雷云',visits:[23,25,27],n:3,at:430,sign:'tilted',st:'萃取头',job:'雷云管萃取：杯子划过萃取头，一道雷搞定'},
  octo:{name:'章鱼',visits:[30,32,34],n:3,at:450,sign:'ink',st:'水站',job:'章鱼管水站：杯子划过去，水量刚好'},
- plant:{name:'盆栽',visits:[36,38,40],n:3,at:420,sign:'vine',st:'配料',job:'盆栽管配料：杯子划过配料站，可可撒好'}
+ plant:{name:'盆栽',visits:[36,38,40],n:3,at:420,sign:'vine',st:'配料',job:'盆栽管配料：杯子划过配料站，配料直接撒好'}
 };
 const STAFF_KEYS=Object.keys(STAFF);
 const WD=['周一','周二','周三','周四','周五','周六','周日'];
@@ -425,7 +439,7 @@ function weatherOf(d){const b=DAYS[d]||DAYS[43+((d-43)%7)];if(b&&b.special==='ra
  const h=Math.abs(Math.sin(d*12.9898)*43758.5453)%1;return h<0.38?'sun':h<0.6?'cloud':h<0.8?'rain':'hot';}
 function menu(){const m=['浓缩','热美式'];if(P('ice'))m.push('冰美式');if(P('milk'))m.push('热拿铁');if(P('ice')&&P('milk'))m.push('冰拿铁');return m;}
 const has=d=>menu().includes(d);
-const K={brewT:()=>P('fasthead')?2.6:3.4,win:()=>P('wide')?0.055:0.04,steam:()=>P('wand')?29:22,patMul:()=>cfg().pat*(P('board')?1.15:1)};
+const K={brewT:()=>P('fasthead')?2.6:3.4,win:()=>P('wide')?0.085:0.065,steam:()=>P('wand')?29:22,patMul:()=>cfg().pat*(P('board')?1.15:1)};
 const G={scene:'open',t:0,sceneT:0,hitStop:0,drags:{},idleT:0};
 const D={pop:0,mouth:0,mood:'idle',moodT:0};
 const SN={mood:'idle',moodT:0,pop:0};
@@ -516,8 +530,8 @@ function waitingItems(){return G.customers.filter(c=>c.state==='wait').flatMap(c
 const iceRange=m=>m==='less'?[2,3]:m==='more'?[6,7]:[4,5];
 function iceQ(n,m){const r=iceRange(m),d=n<r[0]?r[0]-n:n>r[1]?n-r[1]:0;return d===0?1:d===1?0.75:d===2?0.55:0.35;}
 function iceTargetMod(){const o=waitingItems().find(o=>o.base[0]==='冰');return o?o.mod||null:null;}
-const BAND={water:()=>P('kettle')?[0.7,1.0]:[0.76,0.94],cmilk:()=>[0.76,0.94],
- art:()=>P('big')?[0.6,0.92]:[0.66,0.88],top:()=>[0.55,0.82]};
+const BAND={water:()=>P('kettle')?[0.62,1.0]:[0.68,0.96],cmilk:()=>[0.68,0.96],
+ art:()=>P('big')?[0.54,0.96]:[0.6,0.92],top:()=>[0.48,0.86]};
 function okFor(i,c){if(!c||c.stage==='brew'||c.fly)return false;if(i===TOP)return SAVE.drawer&&!!drinkOf(c)&&!c.top;if(i===ICE)return P('ice')&&c.glass&&(c.cubes||0)<9;if(i===WAT)return!c.wDone&&!c.mDone&&c.stage!=='mess';if(i===MLK)return P('milk')&&!c.mDone&&!c.wDone&&c.stage!=='mess';return false;}
 function startProc(i,c){const s=L.s;
  if(i===TOP){if(duty('plant')){staffDo('top',c);return;}const ig=G.loaded||'cocoa';G.proc[i]={k:'top',ing:ig,dur:ING[ig].dur,cup:c,t:0,loop:loopNoise(ING[ig].drizzle?'lowpass':'highpass',ING[ig].drizzle?700:5200,0.8)};return;}
@@ -534,7 +548,9 @@ function orderPool(){return[...G.customers.filter(c=>c.state==='wait').flatMap(c
 function needSteps(c){const st=new Set();const dr=drinkOf(c);for(const o of orderPool()){const m=missingFor(c,o.base);if(m)m.forEach(x=>st.add(x));if(dr&&dr===o.base&&o.top&&!c.top)st.add('top');}return st;}
 function canStaff(step,c){if(!c||c.stage==='brew'||c.stage==='mess'||c.fly)return false;if(step==='top')return okFor(TOP,c);
  if(step==='shot')return canBrew(c);if(step==='ice')return P('ice')&&c.glass&&!(c.cubes>0);if(step==='water')return okFor(WAT,c);if(step==='milk')return okFor(MLK,c);return false;}
-function staffDo(step,c){const s=L.s;if(!canStaff(step,c))return false;
+function staffDo(step,c){const ok=staffDo0(step,c);if(ok&&c)staffStar(c);return ok;}
+function staffStar(c){const n=Math.min(5,1+(G.streak||0));G.streak=(G.streak||0)+1;const top=c.y-L.s*(c.glass?0.85:0.6);for(let i=0;i<n;i++){const a=-Math.PI/2+rand(-1.2,1.2),v=rand(90,150);popStars.push({x:c.x+rand(-4,4),y:top,vx:Math.cos(a)*v,vy:Math.sin(a)*v-30,rot:rand(0,6),vr:rand(-8,8),r:L.s*0.2*rand(0.85,1.1),t:0});mallet(noteAt(i+Math.min(G.streak,8),2),0.055,i*0.04,0.24);}if(n>=3)floatText(`×${n}`,c.x,c.y-L.s*2.1,'#ffe08a',14,0.8);}
+function staffDo0(step,c){const s=L.s;if(!canStaff(step,c))return false;
  SND.staffDo(step);
  if(step==='shot'){cloudStrike(c);return true;}
  if(step==='top'){const need=orderPool().find(o=>o.base===drinkOf(c)&&o.top);c.top=need?need.top:'cocoa';c.topQ=1;G.st.tops++;STF.plant.mood='cheer';STF.plant.moodT=1;STF.plant.pop=0.6;SND.sprinkle();for(let k=0;k<16;k++)addPart({x:c.x+rand(-s*0.3,s*0.3),y:c.y-s*1.2,vx:rand(-10,10),vy:rand(30,70),g:300,sz:1.5,c:pick(['#5a3418','#3b2010','#6cc070']),life:0.4,max:0.4});floatText('盆栽：撒好了',c.x,c.y-s*1.5,'#a8e07a',13,0.9);c.land=1;return true;}
@@ -630,7 +646,7 @@ function atCounter(){return G.customers.filter(c=>c.state!=='leave');}
 function freeSlot(){const a=atCounter();if(a.some(c=>c.visitor))return -1;if(a.length>=cap())return -1;for(let i=0;i<cap();i++)if(!a.some(c=>(c.slot||0)===i))return i;return -1;}
 function lineX(i){return cap()>1?W*0.86+i*W*0.055:W*0.74+i*W*0.085;}
 function stepUp(){if(G.visitorPending&&!atCounter().length){const k=G.visitorPending;G.visitorPending=null;spawnVisitorNow(k);return;}if(G.visitorPending)return;
- const sl=freeSlot();if(sl<0)return;const c=G.line.shift();if(!c)return;c.state='enter';c.slot=sl;c.x=c.lx;c.waitT=0;c.said=0;c.popped=0;G.customers.push(c);SND.bell();buzz(6);
+ const sl=freeSlot();if(sl<0)return;const c=G.line.shift();if(!c)return;c.state='enter';c.slot=sl;c.x=c.lx;c.sc=0.72;c.waitT=0;c.said=0;c.popped=0;G.customers.push(c);SND.bell();buzz(6);
  if(c.items.length>1&&!SAVE.tut.duo){SAVE.tut.duo=1;save();tip('这位客人要两杯：两杯都递过去才算完',6);}
  for(const o of c.items)if(o.mod&&!SAVE.modSeen[o.mod]){SAVE.modSeen[o.mod]=1;save();tip(DATA.mods[o.mod].hint,3);}}
 
@@ -1092,9 +1108,10 @@ function drawStarAt(x,y,r,rot,a){ctx.save();ctx.translate(x,y);ctx.rotate(rot);c
 function drawGoldRim(c){const st=cupGold(c),s=L.s,now=G.t;const S=c.star||(c.star={on:false,t:0,last:now,list:[]});const dt=Math.min(0.05,now-S.last);S.last=now;
  const top=c.y-s*(c.glass?0.85:0.6);
  if(st&&st.gold){if(!S.on){S.on=true;S.t=0;const n=Math.min(5,1+(G.streak||0));S.list=[];for(let i=0;i<n;i++){const a=-Math.PI/2+rand(-1.1,1.1),d=s*rand(0.65,1.05);S.list.push({a,d,del:i*0.07,rot:rand(-0.4,0.4),sz:rand(0.85,1.1),fall:0});}
-   S.list.forEach((p,i)=>tone(1568*Math.pow(2,(i*3)/12),0.09,'sine',0.06,p.del));}S.t+=dt;}
+   S.list.forEach((p,i)=>mallet(noteAt(i+1,2),0.05,p.del,0.12));}S.t+=dt;}
  else if(S.on){S.on=false;S.miss=0.001;}
- if(S.on){for(const p of S.list){const k=clamp((S.t-p.del)/0.3,0,1);if(k<=0)continue;const e=easeBack(k),x=c.x+Math.cos(p.a)*p.d*e,y=top+Math.sin(p.a)*p.d*e+Math.sin(S.t*6+p.a*3)*1.5;p.x=x;p.y=y;
+ if(!S.on&&st&&!st.gold&&!st.over&&st.near>0.45){const q=(st.near-0.45)/0.55;drawStarAt(c.x,top-s*0.3*q,s*0.1*(0.5+q),G.t*2,0.15+q*0.45);}
+ if(S.on){for(const p of S.list){const k=clamp((S.t-p.del)/0.22,0,1);if(k<=0)continue;const e=easeBack(k),x=c.x+Math.cos(p.a)*p.d*e,y=top+Math.sin(p.a)*p.d*e+Math.sin(S.t*6+p.a*3)*1.5;p.x=x;p.y=y;
    drawStarAt(x,y,s*0.2*p.sz*(0.5+0.5*e)*(1+0.1*Math.sin(S.t*14+p.a)),p.rot+Math.sin(S.t*3+p.a)*0.25,1);}
   if(Math.random()<0.2&&S.list[0]&&S.list[0].x)addPart({x:S.list[0].x+rand(-6,6),y:S.list[0].y+rand(-6,6),vx:rand(-10,10),vy:-rand(10,30),sz:rand(0.8,1.4),c:'#fff3c4',life:0.4,max:0.4});}
  else if(S.miss>0&&S.miss<0.6){S.miss+=dt;for(const p of S.list){if(p.x==null)continue;drawStarAt(p.x+Math.cos(p.a)*S.miss*20,p.y+S.miss*S.miss*s*5,s*0.18*p.sz,p.rot+S.miss*5,Math.max(0,1-S.miss/0.6)*0.55);}}}
@@ -1124,7 +1141,7 @@ function drawDrawer(){if(!SAVE.drawer)return;const s=L.s,top=L.underTop+s*0.25,h
 /* ---------- HUD ---------- */
 function drawHUD(){const y=L.top+8,C=cfg(),m=G.clock,rush=m>=420&&m<510;const ph=m<420?'黎明前':m<510?'早高峰':m<600?'上午':'打烊';
  text(C.wd,18,y,15,'#3b2a20','left','800');ctx.font=`800 15px ${SERIF}`;const dw=ctx.measureText(C.wd).width;text('· '+ph,18+dw+6,y+0.5,12,rush?'#b54a2e':'#7a5a42','left','700');
- text(`¥ ${Math.round(G.moneyShow??G.money)}`,W-18,y,17+Math.max(0,G.moneyBump||0)*12,'#3b2a20','right','900');
+ text(`¥ ${Math.round(G.moneyShow??G.money)}`,W-60,y,17+Math.max(0,G.moneyBump||0)*12,'#3b2a20','right','900');
  if(G.combo>1&&!G.boss)text(G.combo>=3?`顺手 ×${G.combo}`:`连击 ×${G.combo}`,18,y+21,12,G.combo>=3?'#b54a2e':'#7a5a42','left','800');
 }
 function drawCoins(){for(const c of G.coinFx){if(c.t<0)continue;ctx.fillStyle='#e8b84a';ell(c.x,c.y,5.5,5.5);ctx.fill();ctx.fillStyle='#ffe08a';ell(c.x-1.2,c.y-1.2,2.4,2.4);ctx.fill();}}
@@ -1239,7 +1256,7 @@ const inB=(b,x,y)=>b&&x>b.x-6&&x<b.x+b.w+6&&y>b.y-6&&y<b.y+b.h+6;
 function card(bx,by,bw,bh){ctx.fillStyle='rgba(30,18,10,0.3)';rr(bx+2,by+6,bw,bh,18);ctx.fill();ctx.fillStyle='#f5ead6';rr(bx,by,bw,bh,18);ctx.fill();ctx.save();rr(bx,by,bw,bh,18);ctx.clip();ctx.globalAlpha=0.2;ctx.fillStyle=grainTile();ctx.fillRect(bx,by,bw,bh);ctx.restore();ctx.strokeStyle='rgba(160,118,78,0.35)';ctx.lineWidth=1;rr(bx+6,by+6,bw-12,bh-12,13);ctx.stroke();}
 const Scenes={};
 function go(s){if(G.scene==='play'&&s!=='play'){try{allCups().forEach(c=>c.loop&&c.loop.stop());(G.proc||[]).forEach(p=>p&&p.loop&&p.loop.stop());}catch(e){}}
- G.scene=s;G.sceneT=0;G.drags={};Scenes[s].enter&&Scenes[s].enter();}
+ G.scene=s;G.sceneT=0;G.drags={};G.paused=false;try{menuBtn();}catch(e){}Scenes[s].enter&&Scenes[s].enter();}
 
 /* ---------- 封面（只在第一次打开时） ---------- */
 Scenes.cover={draw(){drawShop(345);drawCounter();drawLight(345);{const cg=ctx.createLinearGradient(0,0,0,H);cg.addColorStop(0,'rgba(22,16,34,0.42)');cg.addColorStop(0.5,'rgba(22,16,34,0.58)');cg.addColorStop(1,'rgba(20,12,8,0.82)');ctx.fillStyle=cg;ctx.fillRect(0,0,W,H);}const e=clamp(G.sceneT/0.8,0,1);
@@ -1308,6 +1325,7 @@ function drawSign(s){const st=OP.sign;ctx.save();ctx.translate(s.px,s.py);ctx.ro
  if(st==='frozen'){ctx.strokeStyle='rgba(255,255,255,0.85)';ctx.lineWidth=3;rr(x+6,y+6,s.cw-12,s.ch-12,6);ctx.stroke();}
  const fs=s.cw*0.17;text('正常营业',0,-fs*0.2,fs,fg,'center','900');text('OPEN',0,fs*0.75,fs*0.34,sub,'center','800');
  if(st==='ink'){ctx.fillStyle='rgba(43,33,64,0.85)';for(const[ix,iy,r_]of[[-0.32,-0.2,0.13],[0.36,0.22,0.1],[0.12,-0.3,0.06],[-0.1,0.3,0.07],[0.42,-0.25,0.05]]){ell(ix*s.cw,iy*s.ch,r_*s.cw,r_*s.cw*0.85);ctx.fill();}ctx.fillRect(-0.34*s.cw,-0.1*s.ch,3,s.ch*0.5);}
+ if(st==='vine'){ctx.strokeStyle='#4f8a3c';ctx.lineWidth=2.4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x+2,y+s.ch*0.15);ctx.bezierCurveTo(x+s.cw*0.18,y-8,x+s.cw*0.32,y+s.ch+6,x+s.cw*0.56,y+s.ch-2);ctx.moveTo(x+s.cw-2,y+s.ch*0.7);ctx.quadraticCurveTo(x+s.cw*0.9,y-4,x+s.cw*0.72,y+3);ctx.stroke();ctx.lineCap='butt';ctx.fillStyle='#6cb04f';for(const[t,lx,ly]of[[0,x+7,y+s.ch*0.08],[1,x+s.cw*0.17,y+1],[2,x+s.cw*0.3,y+s.ch*0.8],[3,x+s.cw*0.5,y+s.ch-3],[4,x+s.cw*0.86,y+4],[5,x+s.cw*0.97,y+s.ch*0.45],[6,x+s.cw*0.76,y+2]]){ctx.save();ctx.translate(lx,ly);ctx.rotate(t*1.3);ell(0,0,5.5,2.8);ctx.fill();ctx.restore();}}
  if(st==='frozen'){ctx.fillStyle='#a9d8f0';ctx.beginPath();ctx.moveTo(x+8,s.ch/2);const n=9;for(let i=0;i<n;i++){const xa=x+8+(s.cw-16)*i/n,xb=x+8+(s.cw-16)*(i+1)/n;ctx.lineTo((xa+xb)/2,s.ch/2+(i%2?8:16));ctx.lineTo(xb,s.ch/2);}ctx.closePath();ctx.fill();}
  if(sx<0.98){ctx.fillStyle=`rgba(0,0,0,${(1-sx)*0.25})`;rr(x,y,s.cw,s.ch,10);ctx.fill();}ctx.restore();
  if(st==='vine'){ctx.strokeStyle='#3f8f3a';ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-hw-4,cy0+s.ch+8);ctx.bezierCurveTo(-hw+10,cy0+s.ch*0.5,-hw-6,cy0+s.ch*0.2,-hw+14,cy0-2);ctx.stroke();
@@ -1339,7 +1357,7 @@ function joinStaff(k){SAVE.staff[k]=true;if(k==='dragon')SAVE.dragon=2;SAVE.stor
  floatText(`${STAFF[k].name}入职了！`,W/2,opRect().dy-36,'#c0562e',22,2.2);}
 const STORY_SND={dragon:()=>SND.roar(),snow:()=>SND.freeze(),cloud:()=>SND.thunder(),octo:()=>SND.splash(),plant:()=>SND.rustle()};
 Scenes.open={
- enter(){newDay();const sg=SAVE.signNext||'normal';SAVE.signNext=null;save();
+ enter(){newDay();const sg=SAVE.signNext||(SAVE.story&&STAFF[SAVE.story]?STAFF[SAVE.story].sign:'normal');SAVE.signNext=null;save();
   Object.assign(OP,{mode:'open',shutT:0,sy:0,sv:0,target:0,drag:null,locked:false,tick:0,phase:'closed',z:0,vz:0,rest:sg==='tilted'?14:0,f:0,vf:0,ft:0,lit:0,spins:0,signDrag:null,openT:0,smokeT:0,hint:'按住卷帘门，往上拉',sign:sg,
    story:SAVE.story?{k:SAVE.story,ph:'sleep',t:0}:null});if(OP.story){OP.locked=true;OP.hint='门口睡着一位客人……点一下它';}},
  update(dt){const r=opRect();
@@ -1427,14 +1445,14 @@ Scenes.play={
    if(G.clock>=600){G.clock=600;G.closing=true;G.banner='10:00 打烊';G.bannerT=2;SND.bell();for(const c of G.customers)if(c.state!=='leave'){c.state='leave';c.leaveT=0;}G.line=[];G.visitorPending=null;}}
   else if(G.closing){G.closeT+=dt;if(G.closeT>2.4)go('close');}
   // 排队
-  for(let i=0;i<G.line.length;i++){const c=G.line[i];c.lx=lerp(c.lx,lineX(i),Math.min(1,dt*5));if(!G.closing)c.lpat-=dt;}
+  for(let i=0;i<G.line.length;i++){const c=G.line[i],d_=lineX(i)-c.lx;c.lx+=Math.sign(d_)*Math.min(Math.abs(d_),Math.max(120,Math.abs(d_)*5)*dt);if(!G.closing)c.lpat-=dt;}
   const gone=G.line.filter(c=>c.lpat<=0);if(gone.length){G.line=G.line.filter(c=>c.lpat>0);for(const c of gone){G.lost++;G.combo=0;musLevel();staffEmote('…','idle');floatText('排太久，走了',c.lx,L.counterY-L.cs*2.4,'#ef7b6b',13);SND.leave();buzz(30);}}
   const canStep=G.visitorPending?!atCounter().length:(freeSlot()>=0&&G.line.length>0);
-  if(!G.closing&&canStep){G.gapT+=dt;if(G.gapT>0.35){G.gapT=0;stepUp();const c=G.customers[G.customers.length-1];
+  if(!G.closing&&canStep){G.gapT+=dt;if(G.gapT>0.08){G.gapT=0;stepUp();const c=G.customers[G.customers.length-1];
     if(c&&SAVE.day===1&&G.served===0&&!G.firstDone){G.firstDone=1;c.items=[{base:'热美式',top:null}];c.order=c.items[0];c.tutorFreeze=true;}}}else G.gapT=0;
   // 柜台的客人
   for(const c of G.customers){if(c.shakeT>0)c.shakeT-=dt;if(c.hopT>0)c.hopT-=dt;c.bubT=(c.bubT||0)+dt;const tx=c.visitor?L.custX[1]:slotX(c.slot||0);
-   if(c.state==='enter'){c.x=lerp(c.x,tx,Math.min(1,dt*7));if(Math.abs(c.x-tx)<2){c.x=tx;c.state='wait';c.bubT=0;const say=c.regular?regLine(c):(lureHint()||SAYS[c.k]||c.T.say);if(say&&Math.random()<(c.regular||c.T.oneoff?1:0.6))floatText(say,c.x,L.counterY-L.cs*4.6,'#f4e6d0',13,1.8);}}
+   if(c.sc!=null&&c.sc<1)c.sc=Math.min(1,c.sc+dt*1.6);if(c.state==='enter'){const d_=tx-c.x;c.x+=Math.sign(d_)*Math.min(Math.abs(d_),Math.max(160,Math.abs(d_)*5)*dt);if(Math.abs(c.x-tx)<2){c.x=tx;c.state='wait';c.bubT=0;const say=c.regular?regLine(c):(lureHint()||SAYS[c.k]||c.T.say);if(say&&Math.random()<(c.regular||c.T.oneoff?1:0.6))floatText(say,c.x,L.counterY-L.cs*4.6,'#f4e6d0',13,1.8);}}
    else if(c.state==='arrive'){c.arriveT+=dt;if(c.arriveT>0.9){if(c.boss){c.state='talk';bossNext();}else{c.state='wait';c.bubT=0;}}}
    else if(c.state==='talk'){}
    else if(c.state==='chat'){c.chatT-=dt;if(c.chatT<=0){c.state='leave';c.leaveT=0;}}
@@ -1458,7 +1476,7 @@ Scenes.play={
   if(G.darkWing>0)G.darkWing-=dt;if(G.frost>0)G.frost-=dt*0.6;if(G.hintT>0)G.hintT-=dt;if(G.bannerT>0)G.bannerT-=dt;
   if(Object.keys(PTR).length)G.idleT=0;else G.idleT+=dt;
   },
- draw(){const s=L.s;drawShop();drawWeather();drawBossBack();drawLine();for(const c of G.customers){if(c.boss){drawBossAura(c);ctx.save();ctx.translate(c.x,L.counterY);ctx.scale(1.3,1.3);ctx.translate(-c.x,-L.counterY);drawCustomer(c);ctx.restore();}else drawCustomer(c);}drawCounter();for(const c of G.customers)drawBubble(c);
+ draw(){const s=L.s;drawShop();drawWeather();drawBossBack();drawLine();for(const c of G.customers){if(c.boss){drawBossAura(c);ctx.save();ctx.translate(c.x,L.counterY);ctx.scale(1.3,1.3);ctx.translate(-c.x,-L.counterY);drawCustomer(c);ctx.restore();}else if(c.sc!=null&&c.sc<1){ctx.save();ctx.translate(c.x,L.counterY);ctx.scale(c.sc,c.sc);ctx.translate(-c.x,-L.counterY);drawCustomer(c);ctx.restore();}else drawCustomer(c);}drawCounter();for(const c of G.customers)drawBubble(c);
   drawMachine();drawStations();drawStaffBar();drawDrawer();
   for(const c of allCups()){if(isDragged(c))continue;drawCup(c,false);if(c.stage==='brew')drawBrewUI(c);drawGoldRim(c);}
   for(const r of G.ripples||[]){const k=r.t/0.35;ctx.strokeStyle=`rgba(255,236,200,${0.45*(1-k)})`;ctx.lineWidth=2.5*(1-k)+0.5;ell(r.x,r.y,8+k*30,8+k*30);ctx.stroke();}
@@ -1662,12 +1680,16 @@ Scenes.ending={enter(){Object.assign(OP,{mode:'ending',sy:1,lit:1,f:180,ft:180,z
  down(x,y){if(!this.snapped){if(G.sceneT>1)G.sceneT=Math.max(G.sceneT,3.0);return;}if(G.sceneT>6&&inB(this.b,x,y)){SND.click();musStop();go('shop');}}};
 
 /* ---------- 设置 / 开发者面板 ---------- */
-function setUI(){const pn=document.getElementById('setPanel'),b=document.getElementById('setBtn');let armed=false;
+function pauseSet(on){G.paused=!!(on&&G.scene==='play');document.getElementById('veil').classList.toggle('show',!!on);document.getElementById('pauseTag').classList.toggle('show',G.paused);if(AC){try{if(G.paused)AC.suspend();else if(AC.state==='suspended')AC.resume();}catch(e){}}}
+const MENU_SCENES=new Set(['open','play','close','summary','shop']);
+function menuBtn(){const b=document.getElementById('setBtn');if(b)b.classList.toggle('hide',!MENU_SCENES.has(G.scene));}
+function setUI(){const pn=document.getElementById('setPanel'),b=document.getElementById('setBtn');let armed=false;const closeSet=()=>{pn.classList.remove('show');pauseSet(false);};
+ document.getElementById('veil').onclick=()=>{closeSet();document.getElementById('devPanel').classList.remove('show');SND.click();};
  const lab=()=>{document.getElementById('sMusic').textContent='音乐：'+(SET.music?'开':'关');document.getElementById('sSfx').textContent='音效：'+(SET.sfx?'开':'关');document.getElementById('sVib').textContent='震动：'+(SET.vib?'开':'关');document.getElementById('sQual').textContent='画质：'+({auto:'自动',high:'高',low:'省电'}[QUAL.mode]);document.getElementById('sReset').textContent=armed?'真的要从第一天重来？再点一次':'重新开始';};
- b.onclick=()=>{initAudio();armed=false;lab();pn.classList.toggle('show');};
+ b.onclick=()=>{initAudio();armed=false;const on=!pn.classList.contains('show');pn.classList.toggle('show',on);pauseSet(on);lab();SND.click();};
  const act={music(){SET.music=!SET.music;MUS.on=SET.music;saveSet();if(!MUS.on)musStop();else if(G.scene==='play')musStart();},sfx(){SET.sfx=!SET.sfx;saveSet();},vib(){SET.vib=!SET.vib;saveSet();buzz(20);},qual(){QUAL.mode={auto:'high',high:'low',low:'auto'}[QUAL.mode];if(QUAL.mode==='auto'){QUAL.lv=2;store.set('cafe_qlv',2);}store.set('cafe_q',QUAL.mode);},
-  album(){if(G.scene==='play'||G.scene==='open'||G.scene==='close'){tip('打烊以后再看图鉴吧',3);pn.classList.remove('show');return;}G.albumBack=G.scene==='album'?(G.albumBack||'shop'):G.scene;go('album');pn.classList.remove('show');},
-  reset(){if(!armed){armed=true;return;}musStop();SAVE=freshSave();save();pn.classList.remove('show');go('open');},close(){pn.classList.remove('show');}};
+  album(){if(G.scene==='play'||G.scene==='open'||G.scene==='close'){closeSet();tip('打烊以后再看图鉴吧',3);return;}G.albumBack=G.scene==='album'?(G.albumBack||'shop'):G.scene;closeSet();go('album');},
+  reset(){if(!armed){armed=true;return;}musStop();SAVE=freshSave();save();closeSet();go('open');},close(){closeSet();}};
  pn.querySelectorAll('[data-s]').forEach(x=>x.onclick=()=>{act[x.dataset.s]();if(x.dataset.s!=='reset')armed=false;SND.click();lab();});}
 function devSkip(){const s=G.scene;
  if(s==='play'||s==='open'||s==='close'){G.closing=true;G.customers=[];go('summary');}
@@ -1732,15 +1754,17 @@ cv.addEventListener('pointermove',e=>{const id=e.pointerId;if(!PTR[id])return;e.
 function pUp(e){const id=e.pointerId;if(!PTR[id])return;delete PTR[id];const s=Scenes[G.scene];s.up&&s.up(id);}
 cv.addEventListener('pointerup',pUp);cv.addEventListener('pointercancel',pUp);cv.addEventListener('lostpointercapture',pUp);
 ['touchstart','touchmove','touchend'].forEach(t=>document.addEventListener(t,e=>{if(e.target===cv)e.preventDefault();},{passive:false}));document.addEventListener('gesturestart',e=>e.preventDefault());
-document.addEventListener('visibilitychange',()=>{if(document.hidden){const s=Scenes[G.scene];for(const k of Object.keys(PTR)){delete PTR[k];s.up&&s.up(+k);}save();saveStats();if(MUS.started&&AC)AC.suspend&&AC.suspend();}else if(AC&&AC.state==='suspended')AC.resume();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){const s=Scenes[G.scene];for(const k of Object.keys(PTR)){delete PTR[k];s.up&&s.up(+k);}save();saveStats();if(MUS.started&&AC)AC.suspend&&AC.suspend();}else if(AC&&AC.state==='suspended'&&!G.paused)AC.resume();});
 window.addEventListener('pagehide',()=>{save();saveStats();});
 let last=performance.now();
 function frame(now){const raw=(now-last)/1000;let dt=Math.min(0.05,raw);last=now;
  if(G.scene==='play'&&QUAL.mode==='auto'&&raw>0&&raw<0.5&&!document.hidden){QUAL.acc+=raw;QUAL.n++;if(QUAL.acc>=3){const fps=QUAL.n/QUAL.acc;if(fps<40&&QUAL.lv>0){QUAL.lv--;store.set('cafe_qlv',QUAL.lv);}QUAL.acc=0;QUAL.n=0;}}if(G.hitStop>0){G.hitStop-=dt;dt*=0.04;}G.t+=dt;G.sceneT+=dt;const sc=Scenes[G.scene];
- try{sc.update&&sc.update(dt);updFx(dt);ctx.setTransform(DPR,0,0,DPR,0,0);ctx.save();if(shake>0)ctx.translate(rand(-1,1)*shake*0.6,rand(-1,1)*shake*0.6);sc.draw();ctx.restore();drawGrain();if(flash>0){ctx.fillStyle=`rgba(255,215,140,${flash*0.14})`;ctx.fillRect(0,0,W,H);}}
+ if(G.paused)dt=0;
+ try{if(!G.paused){sc.update&&sc.update(dt);updFx(dt);}ctx.setTransform(DPR,0,0,DPR,0,0);ctx.save();if(shake>0)ctx.translate(rand(-1,1)*shake*0.6,rand(-1,1)*shake*0.6);sc.draw();ctx.restore();drawGrain();if(flash>0){ctx.fillStyle=`rgba(255,215,140,${flash*0.14})`;ctx.fillRect(0,0,W,H);}}
  catch(err){ctx.restore&&ctx.restore();if(!frame.err){frame.err=1;console.error(err);}}
  requestAnimationFrame(frame);}
 MUS.on=SET.music;
+if(/dev/.test(location.search+location.hash)||store.get('cafe_dev',0))document.body.classList.add('dev');
 newDay();setUI();devUI();go(store.get('cafe20_cover',0)?(SAVE.introSeen?'open':'intro'):'cover');
 const ld=document.getElementById('loading');if(ld)ld.remove();
 requestAnimationFrame(frame);
